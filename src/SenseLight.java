@@ -13,7 +13,7 @@ public class SenseLight implements Behavior {
 	@Override
 	public boolean takeControl() {
 		if(suppressed != true)
-			return Robot.getLightValue() > 40;
+			return Robot.getLightValue() > 50;
 		return false;
 	}
 
