@@ -12,14 +12,20 @@ public class SenseUltrasonic implements Behavior {
 
 	@Override
 	public boolean takeControl() {
+		if(Robot.getDistance()<10){
+			System.out.println(Robot.getDistance());
+		}
 		return Robot.getDistance()<10 || Robot.touchWall();
 	}
 
 	@Override
 	public void action() {
 		suppressed = false;
-		Robot.turnLeft();
-		Robot.forward();
+		if(!Robot.isReturning){
+			Robot.turnLeft();
+			Robot.forward();
+		}
+		//Robot.updateCellPath();
 		while (Robot.isMoving()) {
 			Thread.yield();
 		}
