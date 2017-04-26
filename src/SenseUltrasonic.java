@@ -22,6 +22,7 @@ public class SenseUltrasonic implements Behavior {
 	public void action() {
 		suppressed = false;
 		if(!Robot.isReturning){
+			Robot.setWall();
 			Robot.turnRight();
 			Robot.forward();
 		}

@@ -21,12 +21,15 @@ public class Robot {
 
 	private static ArcMoveController robot = new DifferentialPilot(5.6f, 11.0f, Motor.A, Motor.C, true);
 	// row and col of starting cell
-	public static Cell currCell = new Cell(0, 0);
+	private static Cell[][] robotArray;
+	private static Cell goal;
+	public static Cell currCell;
 	private static int orientation = 0;
 	public static UltrasonicSensor uSensor = new UltrasonicSensor(SensorPort.S3);
 	public static LightSensor lSensor = new LightSensor(SensorPort.S4);
 	public static TouchSensor tSensor = new TouchSensor(SensorPort.S1);
 	private static Stack<Cell> botPath = new Stack<Cell>();
+	
 	
 
 	private static final int EAST = 0;
@@ -143,13 +146,13 @@ public class Robot {
 		int col = currCell.getCol();
 		botPath.push(currCell);
 		if (orientation == EAST) {
-			currCell = new Cell(row, col + 1);
+			currCell = robotArray[row][col + 1];
 		} else if (orientation == NORTH) {
-			currCell = new Cell(row - 1, col);
+			currCell = robotArray[row - 1][col];
 		} else if (orientation == WEST) {
-			currCell = new Cell(row, col - 1);
+			currCell = robotArray[row][col - 1];
 		} else if (orientation == SOUTH) {
-			currCell = new Cell(row + 1, col);
+			currCell = robotArray[row + 1][col];
 		}
 	}
 
@@ -303,9 +306,48 @@ public class Robot {
 		return currCell.getCol() == 7 && currCell.getRow() == 4;
 	
 	}
+	
+	public static void arraySetup()
+	{
+		for(int i=0; i<robotArray.length; ++i)
+		{
+			for(int j=0; j<robotArray[0].length; ++j)
+			{
+				robotArray[i][j]=new Cell(i, j);
+				robotArray[i][j].setHeuristic(getManhattanDistance(robotArray[i][j]));
+			}
+		}
+	}
+	
+	public static int getManhattanDistance(Cell current)
+	{
+		//System.out.println((Math.abs(goal.getRow()-current.getRow()))+Math.abs(goal.getCol()-current.getCol()));
+		return (Math.abs(goal.getRow()-current.getRow()))+Math.abs(goal.getCol()-current.getCol());
+	}
+	
+	public static void setWall()
+	{
+		if(orientation == EAST)
+			robotArray[currCell.getRow()][currCell.getCol()+1].setHeuristic(-1);
+
+		if(orientation == NORTH)
+			robotArray[currCell.getRow()-1][currCell.getCol()].setHeuristic(-1);
+				
+		if(orientation == WEST)
+			robotArray[currCell.getRow()][currCell.getCol()-1].setHeuristic(-1);
+		
+		if(orientation == SOUTH)
+			robotArray[currCell.getRow()+1][currCell.getCol()].setHeuristic(-1);
+	}
+	
+	
 
 	// array is here
 	public static void main(String[] args) {
+		robotArray = new Cell[5][8];
+		arraySetup();
+		currCell = robotArray[0][0];
+		goal = robotArray[4][7];
 
 		// the default behavior
 		Behavior b1 = new MoveForward();
