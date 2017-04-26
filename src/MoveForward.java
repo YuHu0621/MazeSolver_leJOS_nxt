@@ -14,10 +14,10 @@ public class MoveForward implements Behavior {
 	public boolean takeControl() {
 		// Stop moving forward if it's going to move out of bound.
 		//System.out.println( Robot.currCell.getCol() == 7 && Robot.currCell.getRow() == 4);
-		if(Robot.currCell.getCol() == 7 && Robot.currCell.getRow() == 4 ){
-			Robot.returnToStart();
-			return false;
-		}
+//		if(Robot.currCell.getCol() == 7 && Robot.currCell.getRow() == 4 ){
+//			Robot.returnToStart();
+//			return false;
+//		}
 		return true;
 
 	}
@@ -25,16 +25,16 @@ public class MoveForward implements Behavior {
 	@Override
 	public void action() {
 		suppressed = false;
-		
-		while (!suppressed || Robot.isMoving()) {
+		Robot.forward();
+		if (!suppressed /*|| Robot.isMoving()*/) {
 			
-			if(!Robot.isReturning){
+			//if(!Robot.isReturning){
 			
-				Robot.forward();
-			}
+				
+			//}
 			Thread.yield();
 			
-			//Robot.updateCellPath();
+			
 		}
 	}
 

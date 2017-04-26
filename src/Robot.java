@@ -34,7 +34,7 @@ public class Robot {
 	private static final int WEST = 2;
 	private static final int SOUTH = 3;
 	
-	public static boolean isReturning = false;
+	public static boolean isReturning;
 
 	/**
 	 * Check if the bot is moving.
@@ -178,8 +178,8 @@ public class Robot {
 		orientation = 3;
 		System.out.println("return to start");
 	
-		//Cell currLocation = botPath.pop();
-		Cell currLocation = new Cell(4,7);
+		Cell currLocation = botPath.pop();
+		//Cell currLocation = new Cell(4,7);
 		while (currLocation != null && !botPath.isEmpty()) {
 			Sound.beep();
 			Cell c = botPath.pop();
@@ -281,7 +281,7 @@ public class Robot {
 			}
 			currLocation = c;
 		}
-		System.exit(0);
+		
 
 	}
 
@@ -296,6 +296,12 @@ public class Robot {
 
 	public static boolean touchWall() {
 		return tSensor.isPressed();
+	}
+	
+	public static boolean reachGoal(){
+		
+		return currCell.getCol() == 7 && currCell.getRow() == 4;
+	
 	}
 
 	// array is here

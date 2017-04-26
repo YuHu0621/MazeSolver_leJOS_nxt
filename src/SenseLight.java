@@ -12,15 +12,21 @@ public class SenseLight implements Behavior {
 
 	@Override
 	public boolean takeControl() {
-		if(suppressed != true)
-			return Robot.getLightValue() > 50;
-		return false;
+//		if(suppressed != true)
+//			return Robot.getLightValue() > 50;
+//		return false;
+		if(Robot.reachGoal() ){
+			System.out.println("reach goal");
+			return true;
+		}
+		return Robot.getLightValue() > 50;
 	}
 
 	@Override
 	public void action() {
-		suppressed = true;
-		Robot.stop();
+		suppressed = false;
+		Robot.returnToStart();
+		System.exit(0);
 	}
 
 	@Override
