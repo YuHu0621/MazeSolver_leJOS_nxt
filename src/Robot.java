@@ -77,6 +77,7 @@ public class Robot {
 	
 	public static void move()
 	{
+		System.out.println(orientation);
 		if(!Robot.isReturning)
 		{
 			Cell downCell = null;
@@ -86,34 +87,43 @@ public class Robot {
 			
 			int count = 0;
 			Cell[] min = new Cell[4];
-			if(legalPosition(robotArray[currCell.getRow()+1][currCell.getCol()])&&!isWall(robotArray[currCell.getRow()+1][currCell.getCol()]))
+			if(legalPosition(currCell.getRow()+1,currCell.getCol())&&!isWall(robotArray[currCell.getRow()+1][currCell.getCol()]))
 			{
-				count++;
+				
 				downCell = robotArray[currCell.getRow()+1][currCell.getCol()];
 				min[count] = downCell;
-			}
-			if(legalPosition(robotArray[currCell.getRow()-1][currCell.getCol()])&&!isWall(robotArray[currCell.getRow()-1][currCell.getCol()]))
-			{
 				count++;
+			}
+			if(legalPosition(currCell.getRow()-1,currCell.getCol())&&!isWall(robotArray[currCell.getRow()-1][currCell.getCol()]))
+			{
+				
 				upCell = robotArray[currCell.getRow()-1][currCell.getCol()];
 				min[count] = upCell;
-			}
-			if(legalPosition(robotArray[currCell.getRow()][currCell.getCol()+1])&&!isWall(robotArray[currCell.getRow()][currCell.getCol()+1]))
-			{
 				count++;
+			}
+			if(legalPosition(currCell.getRow(), currCell.getCol()+1)&&!isWall(robotArray[currCell.getRow()][currCell.getCol()+1]))
+			{
+				
 				forwardCell = robotArray[currCell.getRow()][currCell.getCol()+1];	
 				min[count] = forwardCell;
-			}
-			if(legalPosition(robotArray[currCell.getRow()][currCell.getCol()-1])&&!isWall(robotArray[currCell.getRow()][currCell.getCol()-1]))
-			{
 				count++;
+			}
+			if(legalPosition(currCell.getRow(), currCell.getCol()-1)&&!isWall(robotArray[currCell.getRow()][currCell.getCol()-1]))
+			{
+				
 				backCell = robotArray[currCell.getRow()][currCell.getCol()-1];
 				min[count] = backCell;
+				count++;
 			}
 
 			//int min = Math.min(downCell, Math.min(upCell, Math.min(forwardCell, backCell)));
-			Arrays.sort(min);
-			if(forwardCell != null && min[0].equals(forwardCell))
+			
+			
+			Cell[] newArray = new Cell[count];
+			System.arraycopy(min, 0, newArray, 0, count);
+			Arrays.sort(newArray);
+			System.out.println(newArray[0].getRow()+ " "+ newArray[0].getCol());
+			if(forwardCell != null && newArray[0].equals(forwardCell))
 			{
 				if(orientation == NORTH)
 				{
@@ -134,9 +144,12 @@ public class Robot {
 				else
 				{
 					robot.travel(-20);
+					botPath.push(currCell);
+					currCell = newArray[0];
+					
 				}
 			}
-			else if(backCell != null && min[0].equals(backCell))
+			else if(backCell != null && newArray[0].equals(backCell))
 			{
 				if(orientation == NORTH)
 				{
@@ -156,9 +169,11 @@ public class Robot {
 				else
 				{
 					robot.travel(-20);
+					botPath.push(currCell);
+					currCell = newArray[0];
 				}
 			}
-			else if(upCell != null && min[0].equals(upCell))
+			else if(upCell != null && newArray[0].equals(upCell))
 			{
 				if(orientation == WEST)
 				{
@@ -178,9 +193,11 @@ public class Robot {
 				else
 				{
 					robot.travel(-20);
+					botPath.push(currCell);
+					currCell = newArray[0];
 				}
 			}
-			else if(downCell != null && min[0].equals(downCell))
+			else if(downCell != null && newArray[0].equals(downCell))
 			{
 				if(orientation == WEST)
 				{
@@ -200,11 +217,16 @@ public class Robot {
 				else
 				{
 					robot.travel(-20);
+					botPath.push(currCell);
+					currCell = newArray[0];
 				}
 			}
 		}
 		else
+			//go back to start
 			robot.travel(-20);
+			
+		
 	}
 	
 	public static boolean isWall(Cell c)
@@ -217,8 +239,8 @@ public class Robot {
 	
 	public static void resetRobotWorld()
 	{
-		for(int r = 0; r < 7; r++){
-			for(int c = 0; c < 10; c++){
+		for(int r = 0; r < 5; r++){
+			for(int c = 0; c < 8; c++){
 				if(!isWall(robotArray[r][c]))
 					robotArray[r][c].setInt(20);
 		
@@ -251,13 +273,13 @@ public class Robot {
 			}
 			
 			// Check cell to the right
-			if(checkCell.getRow() +1 < 6 && checkCell.getInt()+1<robotArray[checkCell.getRow()+1][checkCell.getCol()].getInt()&&!isWall(robotArray[checkCell.getRow()+1][checkCell.getCol()])){
+			if(checkCell.getRow() +1 < 5 && checkCell.getInt()+1<robotArray[checkCell.getRow()+1][checkCell.getCol()].getInt()&&!isWall(robotArray[checkCell.getRow()+1][checkCell.getCol()])){
 				frontier.addElement(robotArray[checkCell.getRow()+1][checkCell.getCol()]);
 				robotArray[checkCell.getRow()+1][checkCell.getCol()].setInt(calculateScore(checkCell, robotArray[checkCell.getRow()+1][checkCell.getCol()]));
 			}
 			
 			// Check cell below
-			if(checkCell.getCol()+1< 9 && checkCell.getInt()+1<robotArray[checkCell.getRow()][checkCell.getCol()+1].getInt()&&!isWall(robotArray[checkCell.getRow()][checkCell.getCol()+1])){
+			if(checkCell.getCol()+1< 8 && checkCell.getInt()+1<robotArray[checkCell.getRow()][checkCell.getCol()+1].getInt()&&!isWall(robotArray[checkCell.getRow()][checkCell.getCol()+1])){
 				frontier.addElement(robotArray[checkCell.getRow()][checkCell.getCol()+1]);
 				robotArray[checkCell.getRow()][checkCell.getCol()+1].setInt(calculateScore(checkCell, robotArray[checkCell.getRow()][checkCell.getCol()+1]));
 
@@ -492,9 +514,8 @@ public class Robot {
 		//System.out.println((Math.abs(goal.getRow()-current.getRow()))+Math.abs(goal.getCol()-current.getCol()));
 		return (Math.abs(4-current.getRow()))+Math.abs(7-current.getCol());
 	}
-	private static boolean legalPosition(Cell c) {
-		int x = c.getRow();
-		int y = c.getCol();
+	private static boolean legalPosition(int x, int y) {
+		
         if (x < 0) {
         	return false;
         }
@@ -511,17 +532,17 @@ public class Robot {
     }
 	public static void setWall()
 	{
-		if(orientation == EAST)
-			robotArray[currCell.getRow()][currCell.getCol()+1].setInt(200);
+		if(orientation == EAST && legalPosition(currCell.getRow(), currCell.getCol()+1))
+			robotArray[currCell.getRow()][currCell.getCol()+1].setInt(-1);
 
-		if(orientation == NORTH)
-			robotArray[currCell.getRow()-1][currCell.getCol()].setInt(200);
+		if(orientation == NORTH && legalPosition(currCell.getRow()-1, currCell.getCol()))
+			robotArray[currCell.getRow()-1][currCell.getCol()].setInt(-1);
 				
-		if(orientation == WEST)
-			robotArray[currCell.getRow()][currCell.getCol()-1].setInt(200);
+		if(orientation == WEST && legalPosition(currCell.getRow(),currCell.getCol()-1))
+			robotArray[currCell.getRow()][currCell.getCol()-1].setInt(-1);
 		
-		if(orientation == SOUTH)
-			robotArray[currCell.getRow()+1][currCell.getCol()].setInt(200);
+		if(orientation == SOUTH && legalPosition(currCell.getRow()+1, currCell.getCol()))
+			robotArray[currCell.getRow()+1][currCell.getCol()].setInt(-1);
 		
 		setRobotStepsFromGoal(goal);
 	}

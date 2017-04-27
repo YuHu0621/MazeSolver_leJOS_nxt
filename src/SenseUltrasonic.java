@@ -23,6 +23,7 @@ public class SenseUltrasonic implements Behavior {
 		suppressed = false;
 		if(!Robot.isReturning){
 			Robot.setWall();
+			Robot.move();
 		}
 		//Robot.updateCellPath();
 		if (Robot.isMoving()) {
