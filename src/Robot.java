@@ -481,7 +481,23 @@ public class Robot {
 		//System.out.println((Math.abs(goal.getRow()-current.getRow()))+Math.abs(goal.getCol()-current.getCol()));
 		return (Math.abs(4-current.getRow()))+Math.abs(7-current.getCol());
 	}
-	
+	private static boolean legalPosition(Cell c) {
+		int x = c.getRow();
+		int y = c.getCol();
+        if (x < 0) {
+        	return false;
+        }
+        if (y < 0) {
+        	return false;
+        }
+        if (x > (5 - 1)) {
+        	return false;
+        }
+        if (y > (8 - 1)) {
+        	return false;
+        }
+        return true;
+    }
 	public static void setWall()
 	{
 		if(orientation == EAST)
