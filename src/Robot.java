@@ -78,13 +78,23 @@ public class Robot {
 	{
 		if(!Robot.isReturning)
 		{
+			int downCell;
+			int upCell;
+			
 			int count = 0;
+			
 			if(legalPosition(robotArray[currCell.getRow()+1][currCell.getCol()])&&!isWall(robotArray[currCell.getRow()+1][currCell.getCol()]))
 			{
 				count++;
+				downCell = robotArray[currCell.getRow()+1][currCell.getCol()].getInt();
 			}
-			int downCell = robotArray[currCell.getRow()+1][currCell.getCol()].getInt();
-			int upCell = robotArray[currCell.getRow()-1][currCell.getCol()].getInt();
+			if(legalPosition(robotArray[currCell.getRow()-1][currCell.getCol()])&&!isWall(robotArray[currCell.getRow()-1][currCell.getCol()]))
+			{
+				count++;
+				upCell = robotArray[currCell.getRow()-1][currCell.getCol()].getInt();
+			}
+			
+			
 			int forwardCell = robotArray[currCell.getRow()][currCell.getCol()+1].getInt();
 			int backCell = robotArray[currCell.getRow()][currCell.getCol()-1].getInt();
 			
