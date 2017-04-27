@@ -5,12 +5,14 @@ public class Cell {
 	private int col;
 	private boolean visited;
 	private int heuristic;
+	private int value;
 
 	public Cell(int r, int c) {
 		row = r;
 		col = c;
 		visited = false;
 		heuristic = 0;
+		value = 0;
 	}
 
 	public void setVisited() {
@@ -37,5 +39,15 @@ public class Cell {
 	public void setHeuristic(int h)
 	{
 		heuristic = h;
+	}
+	
+	public void setInt(int v)
+	{
+		value = v;
+	}
+	
+	public int getInt()
+	{
+		return value;
 	}
 }

@@ -23,8 +23,6 @@ public class SenseUltrasonic implements Behavior {
 		suppressed = false;
 		if(!Robot.isReturning){
 			Robot.setWall();
-			Robot.turnRight();
-			Robot.forward();
 		}
 		//Robot.updateCellPath();
 		if (Robot.isMoving()) {
@@ -34,7 +32,6 @@ public class SenseUltrasonic implements Behavior {
 
 	@Override
 	public void suppress() {
-	
 		suppressed = true;
 	}
 

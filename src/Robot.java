@@ -1,4 +1,5 @@
 import java.util.Stack;
+import java.util.Vector;
 
 import lejos.nxt.LightSensor;
 import lejos.nxt.Motor;
@@ -72,34 +73,173 @@ public class Robot {
 	/**
 	 * Bot go forward.
 	 */
-
-
-	public static void forward(){
-		//System.out.println(isReturning);
-		if(isReturning){
-		//	System.out.println("forward");
-			robot.travel(-20);
-		}else {
-			if (Robot.canMoveForward()) {
-			robot.travel(-20);
-		} else {
-			turnRight();
-			if (Robot.canMoveForward()) {
-				robot.travel(-20);
-			} else {
-				turnLeft();
-				turnLeft();
-				if (Robot.canMoveForward()) {
-					robot.travel(-20);
-				} else {
+	
+	public static void move()
+	{
+		if(!Robot.isReturning)
+		{
+			int downCell = robotArray[currCell.getRow()+1][currCell.getCol()].getInt();
+			int upCell = robotArray[currCell.getRow()-1][currCell.getCol()].getInt();
+			int forwardCell = robotArray[currCell.getRow()][currCell.getCol()+1].getInt();
+			int backCell = robotArray[currCell.getRow()][currCell.getCol()-1].getInt();
+		
+			int min = Math.min(downCell, Math.min(upCell, Math.min(forwardCell, backCell)));
+		
+			if(min == forwardCell)
+			{
+				if(orientation == NORTH)
+				{
+					turnRight();
+				}
+			
+				else if(orientation == SOUTH)
+				{
 					turnLeft();
+				}
+			
+				else if(orientation == WEST)
+				{
+					turnLeft();
+					turnLeft();
+				}
+			
+				else
+				{
+					robot.travel(-20);
+				}
+			}
+			else if(min == backCell)
+			{
+				if(orientation == NORTH)
+				{
+					turnLeft();
+				}
+			
+				else if(orientation == SOUTH)
+				{
+					turnRight();
+				}
+				
+				else if(orientation == EAST)
+				{
+					turnLeft();
+					turnLeft();
+				}
+				else
+				{
+					robot.travel(-20);
+				}
+			}
+			else if(min == upCell)
+			{
+				if(orientation == WEST)
+				{
+					turnRight();
+				}
+			
+				else if(orientation == EAST)
+				{
+					turnLeft();
+				}
+			
+				else if(orientation == SOUTH)
+				{
+					turnLeft();
+					turnLeft();
+				}
+				else
+				{
+					robot.travel(-20);
+				}
+			}
+			else if(min == downCell)
+			{
+				if(orientation == WEST)
+				{
+					turnLeft();
+				}
+			
+				else if(orientation == EAST)
+				{
+					turnRight();
+				}
+			
+				else if(orientation == NORTH)
+				{
+					turnLeft();
+					turnLeft();
+				}
+				else
+				{
 					robot.travel(-20);
 				}
 			}
 		}
+		else
+			robot.travel(-20);
+	}
+	
+	public static boolean isWall(Cell c)
+	{
+		if(c.getInt()==-1)
+			return true;
+		else
+			return false;
+	}
+	
+	public static void resetRobotWorld()
+	{
+		for(int r = 0; r < 7; r++){
+			for(int c = 0; c < 10; c++){
+				if(!isWall(robotArray[r][c]))
+					robotArray[r][c].setInt(20);
 		
-			updateCellPath();
+			}
 		}
+		goal.setInt(0);
+	}
+	
+	public static void setRobotStepsFromGoal(Cell c)
+	{
+		resetRobotWorld();
+		Vector<Cell> frontier = new Vector<Cell>();
+		frontier.addElement(c);
+		
+		while(!frontier.isEmpty())
+		{
+			Cell checkCell = frontier.elementAt(0);
+			frontier.removeElementAt(0);
+			
+			// Check cell to the left
+			if(checkCell.getRow()-1 >=0 && checkCell.getInt()+1<robotArray[checkCell.getRow()-1][checkCell.getCol()].getInt()&&!isWall(robotArray[checkCell.getRow()-1][checkCell.getCol()])){
+				frontier.addElement(robotArray[checkCell.getRow()-1][checkCell.getCol()]);
+				robotArray[checkCell.getRow()-1][checkCell.getCol()].setInt(calculateScore(checkCell, robotArray[checkCell.getRow()-1][checkCell.getCol()]));
+			}
+			
+			// Check cell above
+			if(checkCell.getCol()-1 >=0 && checkCell.getInt()+1<robotArray[checkCell.getRow()][checkCell.getCol()-1].getInt()&&!isWall(robotArray[checkCell.getRow()][checkCell.getCol()-1])){
+				frontier.addElement(robotArray[checkCell.getRow()][checkCell.getCol()-1]);
+				robotArray[checkCell.getRow()][checkCell.getCol()-1].setInt(calculateScore(checkCell, robotArray[checkCell.getRow()][checkCell.getCol()-1]));
+			}
+			
+			// Check cell to the right
+			if(checkCell.getRow() +1 < 6 && checkCell.getInt()+1<robotArray[checkCell.getRow()+1][checkCell.getCol()].getInt()&&!isWall(robotArray[checkCell.getRow()+1][checkCell.getCol()])){
+				frontier.addElement(robotArray[checkCell.getRow()+1][checkCell.getCol()]);
+				robotArray[checkCell.getRow()+1][checkCell.getCol()].setInt(calculateScore(checkCell, robotArray[checkCell.getRow()+1][checkCell.getCol()]));
+			}
+			
+			// Check cell below
+			if(checkCell.getCol()+1< 9 && checkCell.getInt()+1<robotArray[checkCell.getRow()][checkCell.getCol()+1].getInt()&&!isWall(robotArray[checkCell.getRow()][checkCell.getCol()+1])){
+				frontier.addElement(robotArray[checkCell.getRow()][checkCell.getCol()+1]);
+				robotArray[checkCell.getRow()][checkCell.getCol()+1].setInt(calculateScore(checkCell, robotArray[checkCell.getRow()][checkCell.getCol()+1]));
+
+			}
+		}
+	}
+	
+	public static int calculateScore(Cell current, Cell next)
+	{
+		return current.getInt()-current.getHeuristic()+1+next.getHeuristic();
 	}
 		
 	/**
@@ -200,17 +340,17 @@ public class Robot {
 			if (orientation == EAST) {
 				if (goalX < currX){
 					turnLeft();
-					forward();
+					move();
 					
 				}
 				else if (goalX > currX){
 					turnRight();
-					forward();
+					move();
 					
 				}
 				else {
 					if (goalY > currY){
-						forward();
+						move();
 						
 					}
 					else{
@@ -221,17 +361,17 @@ public class Robot {
 			} else if (orientation == NORTH) {
 				if (goalY < currY){
 					turnLeft();
-					forward();
+					move();
 					
 				}
 				else if (goalY > currY){
 					turnRight();
-					forward();
+					move();
 					
 				}
 				else {
 					if (goalX < currX){
-						forward();
+						move();
 						
 					}
 					else{
@@ -242,17 +382,17 @@ public class Robot {
 			} else if (orientation == WEST) {
 				if (goalX > currX){
 					turnLeft();
-					forward();
+					move();
 					
 				}
 				else if (goalX < currX){
 					turnRight();
-					forward();
+					move();
 					
 				}
 				else {
 					if (goalY < currY){
-						forward();
+						move();
 						
 					}
 					else{
@@ -264,18 +404,18 @@ public class Robot {
 				if (goalY > currY){
 					
 					turnLeft();
-					forward();
+					move();
 					
 				}
 				else if (goalY < currY){
 					
 					turnRight();
-					forward();
+					move();
 					
 				}
 				else {
 					if (goalX > currX){
-						forward();
+						move();
 					}
 					else{
 						backward();
@@ -328,19 +468,19 @@ public class Robot {
 	public static void setWall()
 	{
 		if(orientation == EAST)
-			robotArray[currCell.getRow()][currCell.getCol()+1].setHeuristic(-1);
+			robotArray[currCell.getRow()][currCell.getCol()+1].setInt(200);
 
 		if(orientation == NORTH)
-			robotArray[currCell.getRow()-1][currCell.getCol()].setHeuristic(-1);
+			robotArray[currCell.getRow()-1][currCell.getCol()].setInt(200);
 				
 		if(orientation == WEST)
-			robotArray[currCell.getRow()][currCell.getCol()-1].setHeuristic(-1);
+			robotArray[currCell.getRow()][currCell.getCol()-1].setInt(200);
 		
 		if(orientation == SOUTH)
-			robotArray[currCell.getRow()+1][currCell.getCol()].setHeuristic(-1);
+			robotArray[currCell.getRow()+1][currCell.getCol()].setInt(200);
+		
+		setRobotStepsFromGoal(goal);
 	}
-	
-	
 
 	// array is here
 	public static void main(String[] args) {

@@ -25,7 +25,7 @@ public class MoveForward implements Behavior {
 	@Override
 	public void action() {
 		suppressed = false;
-		Robot.forward();
+		Robot.move();
 		if (!suppressed /*|| Robot.isMoving()*/) {
 			
 			//if(!Robot.isReturning){
