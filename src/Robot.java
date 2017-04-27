@@ -78,10 +78,17 @@ public class Robot {
 	{
 		if(!Robot.isReturning)
 		{
+			int count = 0;
+			if(legalPosition(robotArray[currCell.getRow()+1][currCell.getCol()])&&!isWall(robotArray[currCell.getRow()+1][currCell.getCol()]))
+			{
+				count++;
+			}
 			int downCell = robotArray[currCell.getRow()+1][currCell.getCol()].getInt();
 			int upCell = robotArray[currCell.getRow()-1][currCell.getCol()].getInt();
 			int forwardCell = robotArray[currCell.getRow()][currCell.getCol()+1].getInt();
 			int backCell = robotArray[currCell.getRow()][currCell.getCol()-1].getInt();
+			
+			
 		
 			int min = Math.min(downCell, Math.min(upCell, Math.min(forwardCell, backCell)));
 		
@@ -462,7 +469,7 @@ public class Robot {
 	public static int getManhattanDistance(Cell current)
 	{
 		//System.out.println((Math.abs(goal.getRow()-current.getRow()))+Math.abs(goal.getCol()-current.getCol()));
-		return (Math.abs(goal.getRow()-current.getRow()))+Math.abs(goal.getCol()-current.getCol());
+		return (Math.abs(4-current.getRow()))+Math.abs(7-current.getCol());
 	}
 	
 	public static void setWall()
