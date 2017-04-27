@@ -368,7 +368,7 @@ public class Robot {
 	 **/
 	public static void returnToStart() {
 		isReturning = true;
-		orientation = 3;
+		
 		System.out.println("return to start");
 	
 		Cell currLocation = botPath.pop();
@@ -505,6 +505,7 @@ public class Robot {
 			{
 				robotArray[i][j]=new Cell(i, j);
 				robotArray[i][j].setHeuristic(getManhattanDistance(robotArray[i][j]));
+				robotArray[i][j].setInt(getManhattanDistance(robotArray[i][j]));
 			}
 		}
 	}
