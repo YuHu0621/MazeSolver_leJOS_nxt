@@ -57,7 +57,7 @@ public class Robot {
 	public static void turnLeft() {
 	//	System.out.println("turn left");
 		orientation = (orientation + 1) % 4;
-		((DifferentialPilot) robot).rotate(130);
+		((DifferentialPilot) robot).rotate(134);
 	//	System.out.println(orientation);
 	}
 
@@ -67,7 +67,7 @@ public class Robot {
 	public static void turnRight() {
 		//System.out.println("turn left");
 		orientation = (orientation - 1 + 4) % 4;
-		((DifferentialPilot) robot).rotate(-130);
+		((DifferentialPilot) robot).rotate(-134);
 		//System.out.println(orientation);
 	}
 
