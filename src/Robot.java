@@ -1,3 +1,4 @@
+import java.util.Arrays;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -78,31 +79,41 @@ public class Robot {
 	{
 		if(!Robot.isReturning)
 		{
-			int downCell;
-			int upCell;
+			Cell downCell = null;
+			Cell upCell = null;
+			Cell forwardCell = null;
+			Cell backCell = null;
 			
 			int count = 0;
-			
+			Cell[] min = new Cell[4];
 			if(legalPosition(robotArray[currCell.getRow()+1][currCell.getCol()])&&!isWall(robotArray[currCell.getRow()+1][currCell.getCol()]))
 			{
 				count++;
-				downCell = robotArray[currCell.getRow()+1][currCell.getCol()].getInt();
+				downCell = robotArray[currCell.getRow()+1][currCell.getCol()];
+				min[count] = downCell;
 			}
 			if(legalPosition(robotArray[currCell.getRow()-1][currCell.getCol()])&&!isWall(robotArray[currCell.getRow()-1][currCell.getCol()]))
 			{
 				count++;
-				upCell = robotArray[currCell.getRow()-1][currCell.getCol()].getInt();
+				upCell = robotArray[currCell.getRow()-1][currCell.getCol()];
+				min[count] = upCell;
 			}
-			
-			
-			int forwardCell = robotArray[currCell.getRow()][currCell.getCol()+1].getInt();
-			int backCell = robotArray[currCell.getRow()][currCell.getCol()-1].getInt();
-			
-			
-		
-			int min = Math.min(downCell, Math.min(upCell, Math.min(forwardCell, backCell)));
-		
-			if(min == forwardCell)
+			if(legalPosition(robotArray[currCell.getRow()][currCell.getCol()+1])&&!isWall(robotArray[currCell.getRow()][currCell.getCol()+1]))
+			{
+				count++;
+				forwardCell = robotArray[currCell.getRow()][currCell.getCol()+1];	
+				min[count] = forwardCell;
+			}
+			if(legalPosition(robotArray[currCell.getRow()][currCell.getCol()-1])&&!isWall(robotArray[currCell.getRow()][currCell.getCol()-1]))
+			{
+				count++;
+				backCell = robotArray[currCell.getRow()][currCell.getCol()-1];
+				min[count] = backCell;
+			}
+
+			//int min = Math.min(downCell, Math.min(upCell, Math.min(forwardCell, backCell)));
+			Arrays.sort(min);
+			if(forwardCell != null && min[0].equals(forwardCell))
 			{
 				if(orientation == NORTH)
 				{
@@ -125,7 +136,7 @@ public class Robot {
 					robot.travel(-20);
 				}
 			}
-			else if(min == backCell)
+			else if(backCell != null && min[0].equals(backCell))
 			{
 				if(orientation == NORTH)
 				{
@@ -147,7 +158,7 @@ public class Robot {
 					robot.travel(-20);
 				}
 			}
-			else if(min == upCell)
+			else if(upCell != null && min[0].equals(upCell))
 			{
 				if(orientation == WEST)
 				{
@@ -169,7 +180,7 @@ public class Robot {
 					robot.travel(-20);
 				}
 			}
-			else if(min == downCell)
+			else if(downCell != null && min[0].equals(downCell))
 			{
 				if(orientation == WEST)
 				{

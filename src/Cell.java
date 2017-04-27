@@ -1,5 +1,5 @@
 
-public class Cell {
+public class Cell implements Comparable<Cell>{
 
 	private int row;
 	private int col;
@@ -49,5 +49,18 @@ public class Cell {
 	public int getInt()
 	{
 		return value;
+	}
+
+	@Override
+	public int compareTo(Cell c) {
+		if(this.getInt()<c.getInt())
+		{
+			return -1;
+		}
+		else if(this.getInt()>c.getInt())
+		{
+			return 1;
+		}
+		return 0;
 	}
 }
