@@ -16,7 +16,7 @@ import lejos.robotics.subsumption.Behavior;
 /**
  * A robot with a light sensor and an Ultrasonic sensor.
  * 
- * @author yuhu
+ * @author CaitlinCoggins and yuhu
  *
  */
 public class Robot {
@@ -55,181 +55,282 @@ public class Robot {
 	 * 
 	 */
 	public static void turnLeft() {
-	//	System.out.println("turn left");
+		//rest orientation
 		orientation = (orientation + 1) % 4;
-		((DifferentialPilot) robot).rotate(134);
-	//	System.out.println(orientation);
+		//rotate
+		((DifferentialPilot) robot).rotate(136);
+	
 	}
 
 	/**
 	 * Bot turn right and update orientation.
 	 */
 	public static void turnRight() {
-		//System.out.println("turn left");
+		//reset orientation
 		orientation = (orientation - 1 + 4) % 4;
+		//rotate
 		((DifferentialPilot) robot).rotate(-134);
-		//System.out.println(orientation);
+
+	}
+	
+	/**
+	 * Check if the cell has unvisited neighbor
+	 * @return return true if it has unvisited neighbor
+	 */
+	public static boolean hasUnvisitedNeighbor(){
+		
+		return !currCell.visitedAllNeighbor();
+	}
+	
+	/**
+	 * helper method to check the orientation of the next cell 
+	 * @param nextCell the next cell
+	 * @return return the orientation of the next cell
+	 */
+	private static int nextCellOrientation(Cell currCell, Cell nextCell){
+		if(nextCell.getRow()<currCell.getRow()){
+			return NORTH;
+		}else if(nextCell.getRow()> currCell.getRow()){
+			return SOUTH;
+		}else{
+			if(nextCell.getCol() < currCell.getCol()){
+				return WEST;
+			}else{
+				return EAST;
+			}
+		}
 	}
 
 	/**
+	 * backtrack pop cell from the botPath stack
+	 * Robot go back at dead corner.
+	 */
+	public static void backtrack(){
+		if(!botPath.isEmpty()){
+			Cell nextCell = botPath.pop();
+			turnToNextCell(currCell, nextCell);
+			robot.travel(-20);
+			currCell = nextCell;
+		}
+	}
+	
+	/**
 	 * Bot go forward.
 	 */
-	
 	public static void move()
 	{
-		System.out.println(orientation);
-		if(!Robot.isReturning)
-		{
-			Cell downCell = null;
-			Cell upCell = null;
-			Cell forwardCell = null;
-			Cell backCell = null;
+			//get array of unvisited neighbor cells
+			Cell[] newArray = getNextUnvisitedCells();
+			//if there's none, robot doesn't move.
+			if(newArray.length == 0){
+				return;
+			}
+			//set next cell 
+			Cell nextCell = newArray[0];
+			System.out.println(nextCell.getRow() + " " + nextCell.getCol());
+			nextCell.setVisited();
+			turnToNextCell(currCell, nextCell);
 			
-			int count = 0;
-			Cell[] min = new Cell[4];
-			if(legalPosition(currCell.getRow()+1,currCell.getCol())&&!isWall(robotArray[currCell.getRow()+1][currCell.getCol()]))
-			{
-				
-				downCell = robotArray[currCell.getRow()+1][currCell.getCol()];
-				min[count] = downCell;
-				count++;
+			//if(!turned){
+				//if robot doesn't need to turn, it can safely go forward.
+			if(getDistance()>20){
+				robot.travel(-20);
+				botPath.push(currCell);
+				currCell = nextCell;
+			}else{
+				setWall();
 			}
-			if(legalPosition(currCell.getRow()-1,currCell.getCol())&&!isWall(robotArray[currCell.getRow()-1][currCell.getCol()]))
-			{
-				
-				upCell = robotArray[currCell.getRow()-1][currCell.getCol()];
-				min[count] = upCell;
-				count++;
-			}
-			if(legalPosition(currCell.getRow(), currCell.getCol()+1)&&!isWall(robotArray[currCell.getRow()][currCell.getCol()+1]))
-			{
-				
-				forwardCell = robotArray[currCell.getRow()][currCell.getCol()+1];	
-				min[count] = forwardCell;
-				count++;
-			}
-			if(legalPosition(currCell.getRow(), currCell.getCol()-1)&&!isWall(robotArray[currCell.getRow()][currCell.getCol()-1]))
-			{
-				
-				backCell = robotArray[currCell.getRow()][currCell.getCol()-1];
-				min[count] = backCell;
-				count++;
-			}
+//			}else{
+//				//else the robot need to check if it has wall after turning
+//				return;
+//			}
+			
+		}
+		
+		
+		
+	
 
-			//int min = Math.min(downCell, Math.min(upCell, Math.min(forwardCell, backCell)));
-			
-			
-			Cell[] newArray = new Cell[count];
-			System.arraycopy(min, 0, newArray, 0, count);
-			Arrays.sort(newArray);
-			System.out.println(newArray[0].getRow()+ " "+ newArray[0].getCol());
-			if(forwardCell != null && newArray[0].equals(forwardCell))
+	private static boolean turnToNextCell(Cell curr, Cell nextCell) {
+		
+		//get the orientation of the next cell
+		int nextCellOrientation = nextCellOrientation(curr, nextCell);
+		if(nextCellOrientation == EAST)
+		{
+			if(orientation == NORTH)
 			{
-				if(orientation == NORTH)
-				{
-					turnRight();
-				}
-			
-				else if(orientation == SOUTH)
-				{
-					turnLeft();
-				}
-			
-				else if(orientation == WEST)
-				{
-					turnLeft();
-					turnLeft();
-				}
-			
-				else
-				{
-					robot.travel(-20);
-					botPath.push(currCell);
-					currCell = newArray[0];
-					
-				}
+				turnRight();
+				return true;
 			}
-			else if(backCell != null && newArray[0].equals(backCell))
+		
+			else if(orientation == SOUTH)
 			{
-				if(orientation == NORTH)
-				{
-					turnLeft();
-				}
-			
-				else if(orientation == SOUTH)
-				{
-					turnRight();
-				}
+				turnLeft();
+				return true;
+			}
+		
+			else if(orientation == WEST)
+			{
+				turnLeft();
+				turnLeft();
+				return true;
+			}
+		
+			else
+			{
+				//go forward, don't turn
+				return false;
 				
-				else if(orientation == EAST)
-				{
-					turnLeft();
-					turnLeft();
-				}
-				else
-				{
-					robot.travel(-20);
-					botPath.push(currCell);
-					currCell = newArray[0];
-				}
 			}
-			else if(upCell != null && newArray[0].equals(upCell))
+		}
+		else if(nextCellOrientation == WEST)
+		{
+			if(orientation == NORTH)
 			{
-				if(orientation == WEST)
-				{
-					turnRight();
-				}
-			
-				else if(orientation == EAST)
-				{
-					turnLeft();
-				}
-			
-				else if(orientation == SOUTH)
-				{
-					turnLeft();
-					turnLeft();
-				}
-				else
-				{
-					robot.travel(-20);
-					botPath.push(currCell);
-					currCell = newArray[0];
-				}
+				turnLeft();
+				return true;
 			}
-			else if(downCell != null && newArray[0].equals(downCell))
+		
+			else if(orientation == SOUTH)
 			{
-				if(orientation == WEST)
-				{
-					turnLeft();
-				}
+				turnRight();
+				return true;
+			}
 			
-				else if(orientation == EAST)
-				{
-					turnRight();
-				}
-			
-				else if(orientation == NORTH)
-				{
-					turnLeft();
-					turnLeft();
-				}
-				else
-				{
-					robot.travel(-20);
-					botPath.push(currCell);
-					currCell = newArray[0];
-				}
+			else if(orientation == EAST)
+			{
+				turnLeft();
+				turnLeft();
+				return true;
+			}
+			else
+			{
+
+				return false;
+			}
+		}
+		else if(nextCellOrientation == NORTH)
+		{
+			if(orientation == WEST)
+			{
+				turnRight();
+				return true;
+			}
+		
+			else if(orientation == EAST)
+			{
+				turnLeft();
+				return true;
+			}
+		
+			else if(orientation == SOUTH)
+			{
+				turnLeft();
+				turnLeft();
+				return true;
+			}
+			else
+			{
+
+				return false;
 			}
 		}
 		else
-			//go back to start
-			robot.travel(-20);
-			
+		{
+			if(orientation == WEST)
+			{
+				turnLeft();
+				return true;
+			}
 		
+			else if(orientation == EAST)
+			{
+				turnRight();
+				return true;
+			}
+		
+			else if(orientation == NORTH)
+			{
+				turnLeft();
+				turnLeft();
+				return true;
+			}
+			else
+			{
+
+				return false;
+			}
+		}
+	}
+
+	
+	/**
+	 * helper method to get an array of unvisited neighbor cells.
+	 * @return return an array of unvisited neighbor cell.
+	 */
+	private static Cell[] getNextUnvisitedCells() {
+		int count = 0;
+		Cell[] min = new Cell[4];
+		boolean hasUnvisitedCell = false;
+		if(legalPosition(currCell.getRow()+1,currCell.getCol())&&!isWall(robotArray[currCell.getRow()+1][currCell.getCol()])  )
+		{
+			
+			if(!robotArray[currCell.getRow()+1][currCell.getCol()].visited()){
+				min[count] = robotArray[currCell.getRow()+1][currCell.getCol()];
+				count++;
+				hasUnvisitedCell = true;
+			}
+		}
+		if(legalPosition(currCell.getRow()-1,currCell.getCol())&&!isWall(robotArray[currCell.getRow()-1][currCell.getCol()]) )
+		{
+			
+			if(!robotArray[currCell.getRow()-1][currCell.getCol()].visited()){
+				min[count] = robotArray[currCell.getRow()-1][currCell.getCol()];
+				count++;
+				hasUnvisitedCell = true;
+			}
+		}
+		if(legalPosition(currCell.getRow(), currCell.getCol()+1)&&!isWall(robotArray[currCell.getRow()][currCell.getCol()+1])  )
+		{
+			
+			if(!robotArray[currCell.getRow()][currCell.getCol()+1].visited()){	
+				min[count] = robotArray[currCell.getRow()][currCell.getCol()+1];
+				count++;
+				hasUnvisitedCell = true;
+			}
+		}
+		if(legalPosition(currCell.getRow(), currCell.getCol()-1)&&!isWall(robotArray[currCell.getRow()][currCell.getCol()-1]) )
+		{
+			
+			if(!robotArray[currCell.getRow()][currCell.getCol()-1].visited()){
+				min[count] = robotArray[currCell.getRow()][currCell.getCol()-1];
+				count++;
+				hasUnvisitedCell = true;
+			}
+		}
+		
+		if(hasUnvisitedCell == false){
+			//the currCell has no unvisited neighbor
+			//it has nowhere to go to
+			//should backtrack
+			currCell.setVisitedAllNeighbor();
+		}
+		//trim empty index in the end of the array
+		Cell[] newArray = new Cell[count];
+		System.arraycopy(min, 0, newArray, 0, count);
+		
+		//sort cell based on heuristic
+		Arrays.sort(newArray);
+		
+		return newArray;
 	}
 	
-	public static boolean isWall(Cell c)
+	/**
+	 * helper method to check if the cell is wall
+	 * @param c
+	 * @return
+	 */
+	private static boolean isWall(Cell c)
 	{
 		if(c.getInt()==-1)
 			return true;
@@ -237,6 +338,9 @@ public class Robot {
 			return false;
 	}
 	
+	/**
+	 * reset Robot world
+	 */
 	public static void resetRobotWorld()
 	{
 		for(int r = 0; r < 5; r++){
@@ -249,6 +353,10 @@ public class Robot {
 		goal.setInt(0);
 	}
 	
+	/**
+	 * set cell heuristics 
+	 * @param c cell
+	 */
 	public static void setRobotStepsFromGoal(Cell c)
 	{
 		resetRobotWorld();
@@ -257,94 +365,104 @@ public class Robot {
 		
 		while(!frontier.isEmpty())
 		{
-			Cell checkCell = frontier.elementAt(0);
+			Cell frontierCell = frontier.elementAt(0);
 			frontier.removeElementAt(0);
 			
-			// Check cell to the left
-			if(checkCell.getRow()-1 >=0 && checkCell.getInt()+1<robotArray[checkCell.getRow()-1][checkCell.getCol()].getInt()&&!isWall(robotArray[checkCell.getRow()-1][checkCell.getCol()])){
-				frontier.addElement(robotArray[checkCell.getRow()-1][checkCell.getCol()]);
-				robotArray[checkCell.getRow()-1][checkCell.getCol()].setInt(calculateScore(checkCell, robotArray[checkCell.getRow()-1][checkCell.getCol()]));
-			}
-			
 			// Check cell above
-			if(checkCell.getCol()-1 >=0 && checkCell.getInt()+1<robotArray[checkCell.getRow()][checkCell.getCol()-1].getInt()&&!isWall(robotArray[checkCell.getRow()][checkCell.getCol()-1])){
-				frontier.addElement(robotArray[checkCell.getRow()][checkCell.getCol()-1]);
-				robotArray[checkCell.getRow()][checkCell.getCol()-1].setInt(calculateScore(checkCell, robotArray[checkCell.getRow()][checkCell.getCol()-1]));
+			int frontierCellRow = frontierCell.getRow();
+			int frontierCellIntVal = frontierCell.getInt();
+			if(legalPosition(frontierCellRow-1, frontierCell.getCol())){
+				Cell upCell = robotArray[frontierCellRow-1][frontierCell.getCol()];
+				if(frontierCellRow-1 >=0 && frontierCellIntVal+1<upCell.getInt()&&!isWall(upCell)){
+					frontier.addElement(upCell);
+					upCell.setInt(calculateScore(frontierCell, upCell));
+				}
 			}
-			
-			// Check cell to the right
-			if(checkCell.getRow() +1 < 5 && checkCell.getInt()+1<robotArray[checkCell.getRow()+1][checkCell.getCol()].getInt()&&!isWall(robotArray[checkCell.getRow()+1][checkCell.getCol()])){
-				frontier.addElement(robotArray[checkCell.getRow()+1][checkCell.getCol()]);
-				robotArray[checkCell.getRow()+1][checkCell.getCol()].setInt(calculateScore(checkCell, robotArray[checkCell.getRow()+1][checkCell.getCol()]));
+			// Check cell left
+			if(legalPosition(frontierCellRow, frontierCell.getCol()-1)){
+				Cell leftCell = robotArray[frontierCellRow][frontierCell.getCol()-1];
+				if(frontierCell.getCol()-1 >=0 && frontierCellIntVal+1<leftCell.getInt()&&!isWall(leftCell)){
+					frontier.addElement(leftCell);
+					leftCell.setInt(calculateScore(frontierCell, leftCell));
+				}
 			}
-			
-			// Check cell below
-			if(checkCell.getCol()+1< 8 && checkCell.getInt()+1<robotArray[checkCell.getRow()][checkCell.getCol()+1].getInt()&&!isWall(robotArray[checkCell.getRow()][checkCell.getCol()+1])){
-				frontier.addElement(robotArray[checkCell.getRow()][checkCell.getCol()+1]);
-				robotArray[checkCell.getRow()][checkCell.getCol()+1].setInt(calculateScore(checkCell, robotArray[checkCell.getRow()][checkCell.getCol()+1]));
-
+			// Check cell down
+			if(legalPosition(frontierCellRow+1, frontierCell.getCol())){
+				Cell downCell = robotArray[frontierCellRow+1][frontierCell.getCol()];
+				if(frontierCellRow +1 < 5 && frontierCellIntVal+1<downCell.getInt()&&!isWall(downCell)){
+					frontier.addElement(downCell);
+					downCell.setInt(calculateScore(frontierCell, downCell));
+				}
+			}
+			// Check cell right
+			if(legalPosition(frontierCellRow,frontierCell.getCol()+1)){
+				Cell rightCell = robotArray[frontierCellRow][frontierCell.getCol()+1];
+				if(frontierCell.getCol()+1< 8 && frontierCellIntVal+1<rightCell.getInt()&&!isWall(rightCell)){
+					frontier.addElement(rightCell);
+					rightCell.setInt(calculateScore(frontierCell, rightCell));
+	
+				}
 			}
 		}
 	}
 	
-	public static int calculateScore(Cell current, Cell next)
+	/**
+	 * helper method to calculate score of next cell based on current cell.
+	 * @param current current cell
+	 * @param next next cell
+	 * @return return a score of the next cell
+	 */
+	private static int calculateScore(Cell current, Cell next)
 	{
 		return current.getInt()-current.getHeuristic()+1+next.getHeuristic();
 	}
 		
-	/**
-	 * Bot go backward.
-	 */
-	public static void backward() {
-		//System.out.println("backward");
-		robot.travel(20);
-		//System.out.println(orientation);
-	}
 
-	/**
-	 * Check if the robot is walking within the maze
-	 * 
-	 * @return return false if the robot is going to fall out of the edge.
-	 */
-	public static boolean canMoveForward() {
-		int row = currCell.getRow();
-		int col = currCell.getCol();
-		if (orientation == EAST) {
-			if (col + 1 >= 8)
-				return false;
 
-		} else if (orientation == NORTH) {
-			if (row - 1 <= 0)
-				return false;
+//	/**
+//	 * Check if the robot is walking within the maze
+//	 * 
+//	 * @return return false if the robot is going to fall out of the edge.
+//	 */
+//	private static boolean moveWithinBoundary() {
+//		int row = currCell.getRow();
+//		int col = currCell.getCol();
+//		if (orientation == EAST) {
+//			if (col + 1 >= 8)
+//				return false;
+//
+//		} else if (orientation == NORTH) {
+//			if (row - 1 <= 0)
+//				return false;
+//
+//		} else if (orientation == WEST) {
+//			if (col - 1 <= 0)
+//				return false;
+//		} else if (orientation == SOUTH) {
+//			if (row + 1 >= 5)
+//				return false;
+//
+//		}
+//		return true;
+//	}
 
-		} else if (orientation == WEST) {
-			if (col - 1 <= 0)
-				return false;
-		} else if (orientation == SOUTH) {
-			if (row + 1 >= 5)
-				return false;
-
-		}
-		return true;
-	}
-
-	/**
-	 * Update the botPath.
-	 */
-	public static void updateCellPath() {
-		int row = currCell.getRow();
-		int col = currCell.getCol();
-		botPath.push(currCell);
-		if (orientation == EAST) {
-			currCell = robotArray[row][col + 1];
-		} else if (orientation == NORTH) {
-			currCell = robotArray[row - 1][col];
-		} else if (orientation == WEST) {
-			currCell = robotArray[row][col - 1];
-		} else if (orientation == SOUTH) {
-			currCell = robotArray[row + 1][col];
-		}
-	}
+//	/**
+//	 * Update the botPath.
+//	 */
+//	private static void updateCellPath() {
+//		int row = currCell.getRow();
+//		int col = currCell.getCol();
+//		botPath.push(currCell);
+//		if (orientation == EAST) {
+//			currCell = robotArray[row][col + 1];
+//		} else if (orientation == NORTH) {
+//			currCell = robotArray[row - 1][col];
+//		} else if (orientation == WEST) {
+//			currCell = robotArray[row][col - 1];
+//		} else if (orientation == SOUTH) {
+//			currCell = robotArray[row + 1][col];
+//		}
+//	}
 
 	/**
 	 * light sensor method to detect goal cell
@@ -371,109 +489,112 @@ public class Robot {
 		
 		System.out.println("return to start");
 	
-		Cell currLocation = botPath.pop();
-		//Cell currLocation = new Cell(4,7);
+		Cell currLocation = currCell;
+		
 		while (currLocation != null && !botPath.isEmpty()) {
 			Sound.beep();
 			Cell c = botPath.pop();
-
-			int goalX = c.getRow();
-			int goalY = c.getCol();
-			
-			// Figures out the direction the robot needs to move from the goal
-			// state
-			// and the current orientation of the robot.
-			int currX = currLocation.getRow();
-			int currY = currLocation.getCol();
-			
-			System.out.println(orientation + " " + currX + " " + currY);
-			if (orientation == EAST) {
-				if (goalX < currX){
-					turnLeft();
-					move();
-					
-				}
-				else if (goalX > currX){
-					turnRight();
-					move();
-					
-				}
-				else {
-					if (goalY > currY){
-						move();
-						
-					}
-					else{
-						backward();
-						
-					}
-				}
-			} else if (orientation == NORTH) {
-				if (goalY < currY){
-					turnLeft();
-					move();
-					
-				}
-				else if (goalY > currY){
-					turnRight();
-					move();
-					
-				}
-				else {
-					if (goalX < currX){
-						move();
-						
-					}
-					else{
-						backward();
-						
-					}
-				}
-			} else if (orientation == WEST) {
-				if (goalX > currX){
-					turnLeft();
-					move();
-					
-				}
-				else if (goalX < currX){
-					turnRight();
-					move();
-					
-				}
-				else {
-					if (goalY < currY){
-						move();
-						
-					}
-					else{
-						backward();
-						
-					}
-				}
-			} else if (orientation == SOUTH) {
-				if (goalY > currY){
-					
-					turnLeft();
-					move();
-					
-				}
-				else if (goalY < currY){
-					
-					turnRight();
-					move();
-					
-				}
-				else {
-					if (goalX > currX){
-						move();
-					}
-					else{
-						backward();
-					}
-				}
-			}
+			turnToNextCell(currLocation, c);
+			robot.travel(-20);
 			currLocation = c;
 		}
+//			int goalX = c.getRow();
+//			int goalY = c.getCol();
+//			
+//			// Figures out the direction the robot needs to move from the goal
+//			// state
+//			// and the current orientation of the robot.
+//			int currX = currLocation.getRow();
+//			int currY = currLocation.getCol();
+//			
+//			System.out.println(orientation + " " + currX + " " + currY);
+//			if (orientation == EAST) {
+//				if (goalX < currX){
+//					turnLeft();
+//					move();
+//					
+//				}
+//				else if (goalX > currX){
+//					turnRight();
+//					move();
+//					
+//				}
+//				else {
+//					if (goalY > currY){
+//						move();
+//						
+//					}
+//					else{
+//						backward();
+//						
+//					}
+//				}
+//			} else if (orientation == NORTH) {
+//				if (goalY < currY){
+//					turnLeft();
+//					move();
+//					
+//				}
+//				else if (goalY > currY){
+//					turnRight();
+//					move();
+//					
+//				}
+//				else {
+//					if (goalX < currX){
+//						move();
+//						
+//					}
+//					else{
+//						backward();
+//						
+//					}
+//				}
+//			} else if (orientation == WEST) {
+//				if (goalX > currX){
+//					turnLeft();
+//					move();
+//					
+//				}
+//				else if (goalX < currX){
+//					turnRight();
+//					move();
+//					
+//				}
+//				else {
+//					if (goalY < currY){
+//						move();
+//						
+//					}
+//					else{
+//						backward();
+//						
+//					}
+//				}
+//			} else if (orientation == SOUTH) {
+//				if (goalY > currY){
+//					
+//					turnLeft();
+//					move();
+//					
+//				}
+//				else if (goalY < currY){
+//					
+//					turnRight();
+//					move();
+//					
+//				}
+//				else {
+//					if (goalX > currX){
+//						move();
+//					}
+//					else{
+//						backward();
+//					}
+//				}
+//			}
+			
+		
 		
 
 	}
@@ -491,6 +612,10 @@ public class Robot {
 		return tSensor.isPressed();
 	}
 	
+	/**
+	 * check if the robot has reached goal.
+	 * @return return true if the robot reached goal.
+	 */
 	public static boolean reachGoal(){
 		
 		return currCell.getCol() == 7 && currCell.getRow() == 4;
@@ -510,11 +635,18 @@ public class Robot {
 		}
 	}
 	
-	public static int getManhattanDistance(Cell current)
+	/**
+	 * helper method to calculate manhattan distance 
+	 * @param current current cell
+	 * @return return the manhattan distance
+	 */
+	private static int getManhattanDistance(Cell current)
 	{
-		//System.out.println((Math.abs(goal.getRow()-current.getRow()))+Math.abs(goal.getCol()-current.getCol()));
+		
 		return (Math.abs(4-current.getRow()))+Math.abs(7-current.getCol());
 	}
+	
+	
 	private static boolean legalPosition(int x, int y) {
 		
         if (x < 0) {
@@ -531,6 +663,10 @@ public class Robot {
         }
         return true;
     }
+	
+	/**
+	 * set wall and recalculate heuristics of cell
+	 */
 	public static void setWall()
 	{
 		if(orientation == EAST && legalPosition(currCell.getRow(), currCell.getCol()+1))
@@ -556,11 +692,12 @@ public class Robot {
 		goal = robotArray[4][7];
 
 		// the default behavior
+		Behavior b0 = new Backtrack();
 		Behavior b1 = new MoveForward();
 		Behavior b2 = new SenseUltrasonic();
 		Behavior b3 = new SenseLight();
 
-		Behavior[] bArray = { b1, b3, b2 };
+		Behavior[] bArray = { b0, b1, b3, b2 };
 
 		// create the arbitrator
 		Arbitrator arby = new Arbitrator(bArray, true);

@@ -1,10 +1,9 @@
 import lejos.robotics.subsumption.Behavior;
 
 /**
- * MoveForward is the default behavior that is not suppressed unless the robot
- * is out of the edge or run into wall or get to goal.
+ * MoveForward is the behavior that is suppressed when there's no unvisited neighbor cells to move to.
  * 
- * @author yuhu
+ * @author CaitlinCoggins and yuhu
  *
  */
 public class MoveForward implements Behavior {
@@ -12,13 +11,9 @@ public class MoveForward implements Behavior {
 
 	@Override
 	public boolean takeControl() {
-		// Stop moving forward if it's going to move out of bound.
-		//System.out.println( Robot.currCell.getCol() == 7 && Robot.currCell.getRow() == 4);
-//		if(Robot.currCell.getCol() == 7 && Robot.currCell.getRow() == 4 ){
-//			Robot.returnToStart();
-//			return false;
-//		}
-		return true;
+		if(Robot.hasUnvisitedNeighbor())
+			return true;
+		return false;
 
 	}
 
@@ -26,21 +21,13 @@ public class MoveForward implements Behavior {
 	public void action() {
 		suppressed = false;
 		Robot.move();
-		if (!suppressed /*|| Robot.isMoving()*/) {
-			
-			//if(!Robot.isReturning){
-			
-				
-			//}
+		if (!suppressed ) {
 			Thread.yield();
-			
-			
 		}
 	}
 
 	@Override
 	public void suppress() {
-		System.out.println("moving suppressed");
 		suppressed = true;
 	}
 

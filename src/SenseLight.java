@@ -12,10 +12,8 @@ public class SenseLight implements Behavior {
 
 	@Override
 	public boolean takeControl() {
-//		if(suppressed != true)
-//			return Robot.getLightValue() > 50;
-//		return false;
-		if(Robot.reachGoal() ){
+
+		if(Robot.reachGoal()){
 			return true;
 		}
 		return Robot.getLightValue() > 50;
@@ -25,6 +23,7 @@ public class SenseLight implements Behavior {
 	public void action() {
 		suppressed = false;
 		Robot.returnToStart();
+		//system exit when robot is back at the start cell.
 		System.exit(0);
 	}
 
