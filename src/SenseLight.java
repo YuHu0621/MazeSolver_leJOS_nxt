@@ -3,7 +3,7 @@ import lejos.robotics.subsumption.Behavior;
 /**
  * Sense light behavior detect the goal and call returnToStart method.
  * 
- * @author yuhu
+ * @author CaitlinCoggins and yuhu
  *
  */
 public class SenseLight implements Behavior {

@@ -3,7 +3,7 @@ import lejos.robotics.subsumption.Behavior;
 /**
  * Sense ultrasonic is activated when wall is detected.
  * 
- * @author yuhu
+ * @author CaitlinCoggins and yuhu
  *
  */
 public class SenseUltrasonic implements Behavior {
@@ -24,9 +24,9 @@ public class SenseUltrasonic implements Behavior {
 		if(!Robot.isReturning){
 			Robot.setWall();
 			Robot.turnLeft();
-			//Robot.move();
+			
 		}
-		//Robot.updateCellPath();
+		
 		if (Robot.isMoving()) {
 			Thread.yield();
 		}

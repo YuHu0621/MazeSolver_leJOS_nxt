@@ -131,8 +131,7 @@ public class Robot {
 			nextCell.setVisited();
 			turnToNextCell(currCell, nextCell);
 			
-			//if(!turned){
-				//if robot doesn't need to turn, it can safely go forward.
+			
 			if(getDistance()>20){
 				robot.travel(-20);
 				botPath.push(currCell);
@@ -140,10 +139,7 @@ public class Robot {
 			}else{
 				setWall();
 			}
-//			}else{
-//				//else the robot need to check if it has wall after turning
-//				return;
-//			}
+
 			
 		}
 		
@@ -419,50 +415,7 @@ public class Robot {
 		
 
 
-//	/**
-//	 * Check if the robot is walking within the maze
-//	 * 
-//	 * @return return false if the robot is going to fall out of the edge.
-//	 */
-//	private static boolean moveWithinBoundary() {
-//		int row = currCell.getRow();
-//		int col = currCell.getCol();
-//		if (orientation == EAST) {
-//			if (col + 1 >= 8)
-//				return false;
-//
-//		} else if (orientation == NORTH) {
-//			if (row - 1 <= 0)
-//				return false;
-//
-//		} else if (orientation == WEST) {
-//			if (col - 1 <= 0)
-//				return false;
-//		} else if (orientation == SOUTH) {
-//			if (row + 1 >= 5)
-//				return false;
-//
-//		}
-//		return true;
-//	}
 
-//	/**
-//	 * Update the botPath.
-//	 */
-//	private static void updateCellPath() {
-//		int row = currCell.getRow();
-//		int col = currCell.getCol();
-//		botPath.push(currCell);
-//		if (orientation == EAST) {
-//			currCell = robotArray[row][col + 1];
-//		} else if (orientation == NORTH) {
-//			currCell = robotArray[row - 1][col];
-//		} else if (orientation == WEST) {
-//			currCell = robotArray[row][col - 1];
-//		} else if (orientation == SOUTH) {
-//			currCell = robotArray[row + 1][col];
-//		}
-//	}
 
 	/**
 	 * light sensor method to detect goal cell
@@ -498,102 +451,6 @@ public class Robot {
 			robot.travel(-20);
 			currLocation = c;
 		}
-//			int goalX = c.getRow();
-//			int goalY = c.getCol();
-//			
-//			// Figures out the direction the robot needs to move from the goal
-//			// state
-//			// and the current orientation of the robot.
-//			int currX = currLocation.getRow();
-//			int currY = currLocation.getCol();
-//			
-//			System.out.println(orientation + " " + currX + " " + currY);
-//			if (orientation == EAST) {
-//				if (goalX < currX){
-//					turnLeft();
-//					move();
-//					
-//				}
-//				else if (goalX > currX){
-//					turnRight();
-//					move();
-//					
-//				}
-//				else {
-//					if (goalY > currY){
-//						move();
-//						
-//					}
-//					else{
-//						backward();
-//						
-//					}
-//				}
-//			} else if (orientation == NORTH) {
-//				if (goalY < currY){
-//					turnLeft();
-//					move();
-//					
-//				}
-//				else if (goalY > currY){
-//					turnRight();
-//					move();
-//					
-//				}
-//				else {
-//					if (goalX < currX){
-//						move();
-//						
-//					}
-//					else{
-//						backward();
-//						
-//					}
-//				}
-//			} else if (orientation == WEST) {
-//				if (goalX > currX){
-//					turnLeft();
-//					move();
-//					
-//				}
-//				else if (goalX < currX){
-//					turnRight();
-//					move();
-//					
-//				}
-//				else {
-//					if (goalY < currY){
-//						move();
-//						
-//					}
-//					else{
-//						backward();
-//						
-//					}
-//				}
-//			} else if (orientation == SOUTH) {
-//				if (goalY > currY){
-//					
-//					turnLeft();
-//					move();
-//					
-//				}
-//				else if (goalY < currY){
-//					
-//					turnRight();
-//					move();
-//					
-//				}
-//				else {
-//					if (goalX > currX){
-//						move();
-//					}
-//					else{
-//						backward();
-//					}
-//				}
-//			}
-			
 		
 		
 
