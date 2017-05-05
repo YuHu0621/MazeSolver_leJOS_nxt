@@ -561,7 +561,5 @@ public class Robot {
 
 		arby.start();
 
-		returnToStart();
-
 	}
 }

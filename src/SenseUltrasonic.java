@@ -15,7 +15,7 @@ public class SenseUltrasonic implements Behavior {
 		if(Robot.getDistance()<20){
 			System.out.println(Robot.getDistance());
 		}
-		return Robot.getDistance()<20 /*|| Robot.touchWall()*/;
+		return Robot.getDistance()<20;
 	}
 
 	@Override
